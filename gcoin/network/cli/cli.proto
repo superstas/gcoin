@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package cli;
+
+service CliService {
+  rpc Send (SendRequest) returns (SendResponse) {}
+  rpc GetBalance (GetBalanceRequest) returns (GetBalanceResponse) {}
+}
+
+message GetBalanceRequest {}
+message GetBalanceResponse {
+  repeated Balance addresses = 1;
+}
+message Balance {
+  string address = 1;
+  int64 balance = 2;
+}
+
+message SendRequest {
+  string to_address = 1;
+  int64 amount = 2;
+}
+
+message SendResponse {
+  string tx_id = 1;
+}
