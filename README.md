@@ -1,4 +1,5 @@
 # GCoin :heavy_dollar_sign:
+[![Build Status](https://travis-ci.org/superstas/gcoin.svg?branch=master)](https://travis-ci.org/superstas/gcoin)  
 A very simple proof-of-concept implementation of a PoW cryptocurrency written in Go.  
 This has been written as a part of the talk at the [GopherCon Russia 2018](https://gophercon-russia.ru).  
 
