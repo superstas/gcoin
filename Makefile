@@ -1,4 +1,4 @@
-all: fmt imports generate install
+all: fmt imports generate test install
 
 generate: 
 	go generate 
@@ -6,6 +6,7 @@ generate:
 install: 
 	go install ./cmd/gcoind/...
 	go install ./cmd/gcoin-cli/...
+
 test:
 	go test -cover ./gcoin/...
 

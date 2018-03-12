@@ -1,0 +1,12 @@
+language: go
+
+go:
+  - 1.8
+  - 1.9
+  - tip
+
+install:
+  - make install_deps
+
+script:
+  - cd $TRAVIS_BUILD_DIR && make all
