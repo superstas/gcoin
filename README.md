@@ -14,6 +14,9 @@ This has been written as a part of the talk at the [GopherCon Russia 2018](https
 :heavy_check_mark: CLI tool  
 :heavy_check_mark: Wallet ( with keys and PKH address generation )
 
+## Requirements
+Go 1.9 or newer  
+
 ## Installation
 ```
 go get -u github.com/superstas/gcoin/cmd/...
@@ -33,11 +36,3 @@ There are no following things:
 
 ## Credits :+1:
 
-## TODO
-- Beauty BE
-- Doc
-- Fill out README
-- Add badges
-- Linters
-- Tests
-- Publish with v0.1
