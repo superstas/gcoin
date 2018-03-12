@@ -5,8 +5,6 @@ go:
   - 1.9
   - tip
 
-install:
-  - make install_deps
-
 script:
-  - cd $TRAVIS_BUILD_DIR && make all
+  - cd $TRAVIS_BUILD_DIR && make travis_build
+
