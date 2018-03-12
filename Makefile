@@ -19,4 +19,5 @@ fmt:
 install_deps:
 	go get -u github.com/golang/protobuf/protoc-gen-go
 	go get -u github.com/gojuno/minimock/cmd/minimock
+	go get -u golang.org/x/tools/cmd/goimports
 
