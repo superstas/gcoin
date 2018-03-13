@@ -78,7 +78,6 @@ func (s *Node) handleMsg(ctx context.Context, msg *message.Msg) {
 		if err := s.handleTXMsg(ctx, msg); err != nil {
 			log.Printf("[network]: failed to handle %q msg: %v\n", messageAddTx, err)
 		}
-
 		s.PeerManager.Send(ctx, msg)
 	}
 }

@@ -6,12 +6,12 @@ This code was generated automatically using github.com/gojuno/minimock v1.8
 The original interface "MessageService_MessageServer" can be found in github.com/superstas/gcoin/gcoin/network/message
 */
 import (
-	context "context"
 	"sync/atomic"
 	"time"
 
 	"github.com/gojuno/minimock"
 	message "github.com/superstas/gcoin/gcoin/network/message"
+	context "golang.org/x/net/context"
 	metadata "google.golang.org/grpc/metadata"
 
 	testify_assert "github.com/stretchr/testify/assert"
