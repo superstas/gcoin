@@ -2,7 +2,7 @@ package transaction
 
 /*
 DO NOT EDIT!
-This code was generated automatically using github.com/gojuno/minimock v1.8
+This code was generated automatically using github.com/gojuno/minimock v1.9
 The original interface "Storage" can be found in github.com/superstas/gcoin/gcoin/transaction
 */
 import (

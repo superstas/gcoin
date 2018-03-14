@@ -35,8 +35,9 @@ func (m *MemPool) Add(tx transaction.Transaction) {
 // GetByID returns a transaction with a given transaction hex-encoded ID
 func (m *MemPool) GetByID(txHexID string) (transaction.Transaction, error) {
 	m.l.RLock()
+	defer m.l.RUnlock()
+
 	tx, ok := m.pool[txHexID]
-	m.l.RUnlock()
 	if !ok {
 		return transaction.Transaction{}, errors.New("tx not found")
 	}
@@ -46,12 +47,12 @@ func (m *MemPool) GetByID(txHexID string) (transaction.Transaction, error) {
 // Get returns N transactions and cleans the pool
 func (m *MemPool) Get(n int) []transaction.Transaction {
 	foundTXs := make([]transaction.Transaction, 0, n)
-	m.l.RLock()
+	m.l.Lock()
 	defer func() {
 		for _, tx := range foundTXs {
 			delete(m.pool, tx.HexID())
 		}
-		m.l.RUnlock()
+		m.l.Unlock()
 	}()
 
 	for _, t := range m.pool {
@@ -63,12 +64,23 @@ func (m *MemPool) Get(n int) []transaction.Transaction {
 	return foundTXs
 }
 
+// Read returns N transactions without cleaning
+func (m *MemPool) Read(n int) []transaction.Transaction {
+	m.l.RLock()
+	defer m.l.RUnlock()
+
+	txs := make([]transaction.Transaction, 0, n)
+	for _, t := range m.pool {
+		txs = append(txs, t)
+	}
+	return txs
+}
+
 // DeleteByID removes a transaction with a given transaction hex-encoded ID
-func (m *MemPool) DeleteByID(txHexID string) error {
+func (m *MemPool) DeleteByID(txHexID string) {
 	m.l.Lock()
+	defer m.l.Unlock()
 	delete(m.pool, txHexID)
-	m.l.Unlock()
-	return nil
 }
 
 // Size return size of the MemPool

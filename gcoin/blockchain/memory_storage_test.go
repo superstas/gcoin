@@ -137,7 +137,7 @@ func TestMemoryStorage_ReadLastNBlocks(t *testing.T) {
 	lastBlocks, err = s.ReadLastNBlocks(context.Background(), 10)
 	require.Nil(t, err)
 	assert.Len(t, lastBlocks, 6)
-	assert.Equal(t, []block.Block{block0, block1, block2, block3, block4, block5}, lastBlocks)
+	assert.Equal(t, []block.Block{block5, block4, block3, block2, block1, block0}, lastBlocks)
 
 	lastBlocks, err = s.ReadLastNBlocks(context.Background(), -1)
 	require.NotNil(t, err)

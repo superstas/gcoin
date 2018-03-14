@@ -6,6 +6,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
+	"github.com/superstas/gcoin/gcoin/amount"
 	"github.com/superstas/gcoin/gcoin/block"
 	"github.com/superstas/gcoin/gcoin/transaction"
 )
@@ -17,7 +18,7 @@ type Transaction struct {
 }
 
 type Output struct {
-	Value   int64
+	Value   amount.Amount
 	Address string
 }
 
@@ -82,7 +83,7 @@ func newTransactionFromLegacy(tx transaction.Transaction) Transaction {
 		addr, _ := btcutil.NewAddressPubKeyHash(out.Address, &chaincfg.Params{})
 		// todo: handle err
 		newTX.Outputs = append(newTX.Outputs, Output{
-			Value:   out.Value,
+			Value:   amount.Amount(out.Value),
 			Address: addr.EncodeAddress(),
 		})
 	}

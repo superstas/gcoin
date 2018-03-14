@@ -169,9 +169,14 @@ func (s *memoryStorage) ReadLastNBlocks(ctx context.Context, n int) ([]block.Blo
 		return nil, errors.New("negative n")
 	}
 
-	if n >= len(s.blocks) {
-		return s.blocks, nil
+	b := make([]block.Block, 0, n)
+	for i := len(s.blocks) - 1; i >= 0; i-- {
+		b = append(b, s.blocks[i])
+		n--
+		if n == 0 {
+			break
+		}
 	}
 
-	return s.blocks[len(s.blocks)-n:], nil
+	return b, nil
 }

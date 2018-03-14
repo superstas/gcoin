@@ -94,9 +94,7 @@ func (n *Node) handleBlockMsg(ctx context.Context, msg *message.Msg) error {
 	}
 
 	for _, tx := range b.Transactions {
-		if err := n.MemPool.DeleteByID(tx.HexID()); err != nil {
-			log.Printf("[mempool]: failed to remove TX %q\n", tx.HexID())
-		}
+		n.MemPool.DeleteByID(tx.HexID())
 	}
 
 	return errors.Wrap(n.Storage.WriteBlock(ctx, b), "failed to write block")
@@ -110,7 +108,7 @@ func (n *Node) handleTXMsg(ctx context.Context, msg *message.Msg) error {
 	}
 
 	if err := n.Validator.ValidateTX(ctx, tx); err != nil {
-		return errors.Wrap(err, "failed to validate TX")
+		return err
 	}
 
 	n.MemPool.Add(tx)

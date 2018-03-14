@@ -60,18 +60,15 @@ func TestMempool_DeleteByID(t *testing.T) {
 	p.Add(tx3)
 	assert.Equal(t, 3, p.Size())
 
-	err := p.DeleteByID("01")
-	assert.Nil(t, err)
+	p.DeleteByID("01")
 	assert.Equal(t, 2, p.Size())
-	_, err = p.GetByID("01")
+	_, err := p.GetByID("01")
 	assert.NotNil(t, err)
 
-	err = p.DeleteByID("01")
-	assert.Nil(t, err)
+	p.DeleteByID("01")
 	assert.Equal(t, 2, p.Size())
 
-	err = p.DeleteByID("02")
-	assert.Nil(t, err)
+	p.DeleteByID("02")
 	assert.Equal(t, 1, p.Size())
 
 }

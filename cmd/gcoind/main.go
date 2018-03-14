@@ -158,19 +158,27 @@ func run() {
 func connectToNode(ctx context.Context, s *network.Node) {
 	clientConn, err := grpc.Dial(addNode, grpc.WithInsecure())
 	if err != nil {
-		log.Printf("[network]: failed to connect to %q\n", addNode)
+		log.Printf("[network]: failed to create a client for %q\n", addNode)
+		os.Exit(1)
 	}
 	client := message.NewMessageServiceClient(clientConn)
 	stream, err := client.Message(ctx)
 	if err != nil {
-		log.Printf("[network]: failed to call node %q: %v\n", addNode, err)
+		log.Printf("[network]: failed to connect to %q\n", addNode)
+		os.Exit(1)
 	}
 	log.Printf("[network]: connected to a node %q\n", addNode)
 	s.ServeClient(stream)
 }
 
 func runBlockExplorer(s blockchain.Storage, m *mempool.MemPool) {
-	e := blockexplorer.New(s, m)
+	e, err := blockexplorer.New(s, m)
+	if err != nil {
+		log.Printf("[network]: failed to start blockexplorer: %v\n", err)
+		os.Exit(1)
+	}
+
+	http.HandleFunc("/", e.ViewIndex)
 	http.HandleFunc("/tx/", e.ViewTXHandler)
 	http.HandleFunc("/block/", e.ViewBlockHandler)
 	log.Printf("[network]: blockexplorer started at %q\n", httpListen)
