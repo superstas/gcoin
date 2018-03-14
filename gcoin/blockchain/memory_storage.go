@@ -94,10 +94,15 @@ func (s *memoryStorage) ReadLastBlockHash(_ context.Context) ([]byte, error) {
 	return s.lastBlockHash, nil
 }
 
+// Close releases allocated resources
 func (s *memoryStorage) Close(context.Context) error {
 	return nil
 }
 
+// FindTransactionByID finds a tx by given ID
+// As you can see this is very inefficient implementation, that's why in real projects UTXOSet ( or UTXOPool ) is used.
+// https://bitcoin.stackexchange.com/questions/37397/where-is-the-utxo-data-stored
+// https://statoshi.info/dashboard/db/unspent-transaction-output-set
 func (s *memoryStorage) FindTransactionByID(TxID []byte) ([]byte, transaction.Transaction, error) {
 	for _, b := range s.blocks {
 		for _, tx := range b.Transactions {
@@ -109,6 +114,9 @@ func (s *memoryStorage) FindTransactionByID(TxID []byte) ([]byte, transaction.Tr
 	return nil, transaction.Transaction{}, errors.New("transaction not found")
 }
 
+// FindUTXOByPKH finds a set of UTXO by a given public key hash ( address )
+// As you can see this is very inefficient implementation, that's why in real projects UTXOSet is stored as a "index".
+// https://bitcoin.stackexchange.com/questions/37397/where-is-the-utxo-data-stored
 func (s *memoryStorage) FindUTXOByPKH(_ context.Context, addressPKH btcutil.AddressPubKeyHash) (transaction.UTXOSet, error) {
 	// map[TxID]OutIndex
 	spentOutputs := make(map[string]int64)
@@ -140,6 +148,7 @@ func (s *memoryStorage) FindUTXOByPKH(_ context.Context, addressPKH btcutil.Addr
 	return UTXOs, nil
 }
 
+// TotalUTXOByPKH returns a sum of UTXO by a given public key hash ( address )
 func (s *memoryStorage) TotalUTXOByPKH(ctx context.Context, addressPKH btcutil.AddressPubKeyHash) (int64, error) {
 	UTXOs, err := s.FindUTXOByPKH(ctx, addressPKH)
 	var t int64
@@ -152,4 +161,17 @@ func (s *memoryStorage) TotalUTXOByPKH(ctx context.Context, addressPKH btcutil.A
 	}
 
 	return t, nil
+}
+
+// ReadLastNBlocks returns last N blocks
+func (s *memoryStorage) ReadLastNBlocks(ctx context.Context, n int) ([]block.Block, error) {
+	if n < 0 {
+		return nil, errors.New("negative n")
+	}
+
+	if n >= len(s.blocks) {
+		return s.blocks, nil
+	}
+
+	return s.blocks[len(s.blocks)-n:], nil
 }

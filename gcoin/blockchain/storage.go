@@ -17,6 +17,8 @@ type Storage interface {
 	ReadGenesisBlock(context.Context) (block.Block, error)
 	// ReadBlockByHash returns a block by given hash
 	ReadBlockByHash(context.Context, []byte) (block.Block, error)
+	// ReadLastNBlocks returns last N blocks
+	ReadLastNBlocks(context.Context, int) ([]block.Block, error)
 	// ReadLastBlockHash returns a last known block hash
 	ReadLastBlockHash(context.Context) ([]byte, error)
 	// WriteBlock writes a given block to the storage

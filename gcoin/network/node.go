@@ -33,8 +33,8 @@ type Node struct {
 }
 
 // Message starts listening a given server stream
-func (s *Node) Message(msgStream message.MessageService_MessageServer) error {
-	s.PeerManager.AddServer(msgStream)
+func (n *Node) Message(msgStream message.MessageService_MessageServer) error {
+	n.PeerManager.AddServer(msgStream)
 	for {
 		in, err := msgStream.Recv()
 		if err == io.EOF {
@@ -44,13 +44,13 @@ func (s *Node) Message(msgStream message.MessageService_MessageServer) error {
 		if err != nil {
 			return err
 		}
-		s.handleMsg(msgStream.Context(), in)
+		n.handleMsg(msgStream.Context(), in)
 	}
 }
 
 // ServeClient starts listening a given client stream
-func (s *Node) ServeClient(stream message.MessageService_MessageClient) {
-	s.PeerManager.AddClient(stream)
+func (n *Node) ServeClient(stream message.MessageService_MessageClient) {
+	n.PeerManager.AddClient(stream)
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
@@ -61,67 +61,67 @@ func (s *Node) ServeClient(stream message.MessageService_MessageClient) {
 			return
 		}
 
-		s.handleMsg(stream.Context(), in)
+		n.handleMsg(stream.Context(), in)
 	}
 }
 
-func (s *Node) handleMsg(ctx context.Context, msg *message.Msg) {
+func (n *Node) handleMsg(ctx context.Context, msg *message.Msg) {
 	p, _ := peer.FromContext(ctx)
 	log.Printf("[network]: new incoming %q msg from peer %s\n", msg.Type, p.Addr)
 	switch msg.Type {
 	case messageAddBlock:
-		if err := s.handleBlockMsg(ctx, msg); err != nil {
+		if err := n.handleBlockMsg(ctx, msg); err != nil {
 			log.Printf("[network]: failed to handle %q msg: %v\n", messageAddBlock, err)
 		}
-		s.PeerManager.Send(ctx, msg)
+		n.PeerManager.Send(ctx, msg)
 	case messageAddTx:
-		if err := s.handleTXMsg(ctx, msg); err != nil {
+		if err := n.handleTXMsg(ctx, msg); err != nil {
 			log.Printf("[network]: failed to handle %q msg: %v\n", messageAddTx, err)
 		}
-		s.PeerManager.Send(ctx, msg)
+		n.PeerManager.Send(ctx, msg)
 	}
 }
 
-func (s *Node) handleBlockMsg(ctx context.Context, msg *message.Msg) error {
+func (n *Node) handleBlockMsg(ctx context.Context, msg *message.Msg) error {
 	var b block.Block
 	err := json.Unmarshal(msg.Data, &b)
 	if err != nil {
 		return errors.Wrap(err, "failed to unmarshal block data")
 	}
 
-	if err := s.Validator.ValidateBlock(ctx, b); err != nil {
+	if err := n.Validator.ValidateBlock(ctx, b); err != nil {
 		return errors.Wrap(err, "failed to validate block")
 	}
 
 	for _, tx := range b.Transactions {
-		if err := s.MemPool.DeleteByID(tx.HexID()); err != nil {
+		if err := n.MemPool.DeleteByID(tx.HexID()); err != nil {
 			log.Printf("[mempool]: failed to remove TX %q\n", tx.HexID())
 		}
 	}
 
-	return errors.Wrap(s.Storage.WriteBlock(ctx, b), "failed to write block")
+	return errors.Wrap(n.Storage.WriteBlock(ctx, b), "failed to write block")
 }
 
-func (s *Node) handleTXMsg(ctx context.Context, msg *message.Msg) error {
+func (n *Node) handleTXMsg(ctx context.Context, msg *message.Msg) error {
 	var tx transaction.Transaction
 	err := json.Unmarshal(msg.Data, &tx)
 	if err != nil {
 		return errors.Wrap(err, "failed to unmarshal TX data")
 	}
 
-	if err := s.Validator.ValidateTX(ctx, tx); err != nil {
+	if err := n.Validator.ValidateTX(ctx, tx); err != nil {
 		return errors.Wrap(err, "failed to validate TX")
 	}
 
-	s.MemPool.Add(tx)
+	n.MemPool.Add(tx)
 	return nil
 }
 
 // Send sends a TX message to the network
-func (s *Node) Send(ctx context.Context, r *cli.SendRequest) (*cli.SendResponse, error) {
+func (n *Node) Send(ctx context.Context, r *cli.SendRequest) (*cli.SendResponse, error) {
 	// TODO: UTXO should be found by all existed addresses
-	from := s.Wallet.Keys()[0]
-	utxos, err := s.Storage.FindUTXOByPKH(ctx, *from.AddressPKH)
+	from := n.Wallet.Keys()[0]
+	utxos, err := n.Storage.FindUTXOByPKH(ctx, *from.AddressPKH)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to find UTXO")
 	}
@@ -141,21 +141,21 @@ func (s *Node) Send(ctx context.Context, r *cli.SendRequest) (*cli.SendResponse,
 		return nil, err
 	}
 
-	if err := s.Signer.Sign(&tx, from.PrivateKey); err != nil {
+	if err := n.Signer.Sign(&tx, from.PrivateKey); err != nil {
 		return nil, errors.Wrap(err, "failed to sign")
 	}
 
-	if err := s.Validator.ValidateTX(ctx, tx); err != nil {
+	if err := n.Validator.ValidateTX(ctx, tx); err != nil {
 		return nil, errors.Wrap(err, "failed to validate tx")
 	}
 
-	s.MemPool.Add(tx)
+	n.MemPool.Add(tx)
 	txData, err := json.Marshal(tx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal tx")
 	}
 
-	s.PeerManager.Send(ctx, NewAddTXMessage(txData))
+	n.PeerManager.Send(ctx, NewAddTXMessage(txData))
 
 	return &cli.SendResponse{
 		TxId: tx.HexID(),
@@ -163,8 +163,8 @@ func (s *Node) Send(ctx context.Context, r *cli.SendRequest) (*cli.SendResponse,
 }
 
 // GetBalance returns sum of all UTXO of all addresses in the wallet
-func (s *Node) GetBalance(ctx context.Context, in *cli.GetBalanceRequest) (*cli.GetBalanceResponse, error) {
-	keys := s.Wallet.Keys()
+func (n *Node) GetBalance(ctx context.Context, in *cli.GetBalanceRequest) (*cli.GetBalanceResponse, error) {
+	keys := n.Wallet.Keys()
 	if len(keys) == 0 {
 		return nil, errors.New("failed to find keys in the wallet")
 	}
@@ -172,8 +172,8 @@ func (s *Node) GetBalance(ctx context.Context, in *cli.GetBalanceRequest) (*cli.
 		Addresses: make([]*cli.Balance, 0, len(keys)),
 	}
 
-	for _, k := range s.Wallet.Keys() {
-		total, err := s.Storage.TotalUTXOByPKH(ctx, *k.AddressPKH)
+	for _, k := range n.Wallet.Keys() {
+		total, err := n.Storage.TotalUTXOByPKH(ctx, *k.AddressPKH)
 		if err != nil {
 			errors.Wrapf(err, "failed to read total UTXO by %s", k.AddressPKH.EncodeAddress())
 		}

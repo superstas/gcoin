@@ -111,6 +111,38 @@ func TestMemoryStorage_WriteBlock(t *testing.T) {
 	assert.Equal(t, block3, readBlock)
 }
 
+func TestMemoryStorage_ReadLastNBlocks(t *testing.T) {
+	s, err := NewMemoryStorage()
+	require.Nil(t, err)
+
+	block0, err := s.ReadGenesisBlock(context.Background())
+	require.Nil(t, err)
+
+	block1 := newMockBlock(block0.Hash)
+	s.WriteBlock(context.Background(), block1)
+	block2 := newMockBlock(block1.Hash)
+	s.WriteBlock(context.Background(), block2)
+	block3 := newMockBlock(block2.Hash)
+	s.WriteBlock(context.Background(), block3)
+	block4 := newMockBlock(block3.Hash)
+	s.WriteBlock(context.Background(), block4)
+	block5 := newMockBlock(block4.Hash)
+	s.WriteBlock(context.Background(), block5)
+
+	lastBlocks, err := s.ReadLastNBlocks(context.Background(), 1)
+	require.Nil(t, err)
+	assert.Len(t, lastBlocks, 1)
+	assert.Equal(t, []block.Block{block5}, lastBlocks)
+
+	lastBlocks, err = s.ReadLastNBlocks(context.Background(), 10)
+	require.Nil(t, err)
+	assert.Len(t, lastBlocks, 6)
+	assert.Equal(t, []block.Block{block0, block1, block2, block3, block4, block5}, lastBlocks)
+
+	lastBlocks, err = s.ReadLastNBlocks(context.Background(), -1)
+	require.NotNil(t, err)
+}
+
 func TestMemoryStorage_FindTransactionByID(t *testing.T) {
 	s, err := NewMemoryStorage()
 	require.Nil(t, err)
@@ -156,8 +188,8 @@ func newMockBlock(prevHash []byte) block.Block {
 	bob, _ := keys.New()
 	reward, _ := amount.NewAmount(50.)
 	coinbaseTX, _ := transaction.NewCoinBase(*alice.AddressPKH, reward)
-	amount, _ := amount.NewAmount(15.)
-	newTX, _ := transaction.New(transaction.NewUTXOSetFromTX(coinbaseTX), *alice.AddressPKH, *bob.AddressPKH, amount)
+	a, _ := amount.NewAmount(15.)
+	newTX, _ := transaction.New(transaction.NewUTXOSetFromTX(coinbaseTX), *alice.AddressPKH, *bob.AddressPKH, a)
 
 	b := block.New(prevHash, []transaction.Transaction{newTX})
 	targetBytes, _ := hex.DecodeString("0FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
