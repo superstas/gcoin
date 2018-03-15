@@ -11,67 +11,67 @@ import (
 	"github.com/superstas/gcoin/gcoin/transaction"
 )
 
-type Transaction struct {
-	ID      string
-	Inputs  []Input
-	Outputs []Output
+type tx struct {
+	ID      string   `json:"id"`
+	Inputs  []input  `json:"inputs"`
+	Outputs []output `json:"outputs"`
 }
 
-type Output struct {
-	Value   amount.Amount
-	Address string
+type output struct {
+	Value   amount.Amount `json:"amount"`
+	Address string        `json:"address"`
 }
 
-type Input struct {
-	TransactionID string
-	OutIndex      int64
-	Sign          string
-	PubKey        string
+type input struct {
+	TransactionID string `json:"tx_id,omitempty"`
+	OutIndex      int64  `json:"out_index"`
+	Sign          string `json:"sign,omitempty"`
+	PubKey        string `json:"pub_key,omitempty"`
 }
 
-type BlockHeader struct {
-	PreviousBlockHash string
-	MerkleRootHash    string
-	Timestamp         int64
-	Target            string
-	Nonce             uint64
+type header struct {
+	PreviousBlockHash string `json:"prev_block_hash,omitempty"`
+	MerkleRootHash    string `json:"merkle_root_hash"`
+	Timestamp         int64  `json:"ts"`
+	Target            string `json:"target"`
+	Nonce             uint64 `json:"nonce"`
 }
 
-type Block struct {
-	BlockHeader
-	Hash         string
-	Transactions []Transaction
+type internalBlock struct {
+	Hash         string `json:"hash"`
+	Header       header `json:"header"`
+	Transactions []tx   `json:"transactions"`
 }
 
-func newBlockFromLegacy(b block.Block) Block {
-	newBlock := Block{
+func newInternalBlock(b block.Block) internalBlock {
+	newBlock := internalBlock{
 		Hash: b.HexHash(),
-		BlockHeader: BlockHeader{
+		Header: header{
 			PreviousBlockHash: hex.EncodeToString(b.PreviousBlockHash),
 			MerkleRootHash:    hex.EncodeToString(b.MerkleRootHash),
 			Timestamp:         b.Timestamp,
 			Nonce:             b.Nonce,
 			Target:            fmt.Sprintf("%064x", b.Target),
 		},
-		Transactions: make([]Transaction, 0, len(b.Transactions)),
+		Transactions: make([]tx, 0, len(b.Transactions)),
 	}
 
 	for _, tx := range b.Transactions {
-		newBlock.Transactions = append(newBlock.Transactions, newTransactionFromLegacy(tx))
+		newBlock.Transactions = append(newBlock.Transactions, newInternalTransaction(tx))
 	}
 
 	return newBlock
 }
 
-func newTransactionFromLegacy(tx transaction.Transaction) Transaction {
-	newTX := Transaction{
-		ID:      tx.HexID(),
-		Outputs: make([]Output, 0, len(tx.Outputs)),
-		Inputs:  make([]Input, 0, len(tx.Inputs)),
+func newInternalTransaction(t transaction.Transaction) tx {
+	newTX := tx{
+		ID:      t.HexID(),
+		Outputs: make([]output, 0, len(t.Outputs)),
+		Inputs:  make([]input, 0, len(t.Inputs)),
 	}
 
-	for _, in := range tx.Inputs {
-		newTX.Inputs = append(newTX.Inputs, Input{
+	for _, in := range t.Inputs {
+		newTX.Inputs = append(newTX.Inputs, input{
 			TransactionID: hex.EncodeToString(in.TransactionID),
 			OutIndex:      in.OutIndex,
 			Sign:          hex.EncodeToString(in.Sign),
@@ -79,10 +79,10 @@ func newTransactionFromLegacy(tx transaction.Transaction) Transaction {
 		})
 	}
 
-	for _, out := range tx.Outputs {
+	for _, out := range t.Outputs {
 		addr, _ := btcutil.NewAddressPubKeyHash(out.Address, &chaincfg.Params{})
 		// todo: handle err
-		newTX.Outputs = append(newTX.Outputs, Output{
+		newTX.Outputs = append(newTX.Outputs, output{
 			Value:   amount.Amount(out.Value),
 			Address: addr.EncodeAddress(),
 		})

@@ -41,7 +41,7 @@ var (
 func main() {
 	app := cli_app.NewApp()
 	app.Name = cmd.GCoindASCIILogo() + "\ngcoin-daemon"
-	app.Version = "0.1"
+	app.Version = "0.1.1"
 	app.Usage = "Run Gcoin as a daemon"
 	app.Flags = []cli_app.Flag{
 		cli_app.StringFlag{
@@ -172,15 +172,15 @@ func connectToNode(ctx context.Context, s *network.Node) {
 }
 
 func runBlockExplorer(s blockchain.Storage, m *mempool.MemPool) {
-	e, err := blockexplorer.New(s, m)
+	be, err := blockexplorer.New(s, m)
 	if err != nil {
 		log.Printf("[network]: failed to start blockexplorer: %v\n", err)
 		os.Exit(1)
 	}
 
-	http.HandleFunc("/", e.ViewIndex)
-	http.HandleFunc("/tx/", e.ViewTXHandler)
-	http.HandleFunc("/block/", e.ViewBlockHandler)
+	http.HandleFunc("/", be.ViewIndex)
+	http.HandleFunc("/tx/", be.ViewTX)
+	http.HandleFunc("/block/", be.ViewBlock)
 	log.Printf("[network]: blockexplorer started at %q\n", httpListen)
 	http.ListenAndServe(httpListen, nil)
 }

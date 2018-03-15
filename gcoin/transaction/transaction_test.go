@@ -102,7 +102,7 @@ func TestNew_TwoInputs(t *testing.T) {
 	require.Nil(t, err)
 
 	// summary UTXOSet that includes outputs from both TXs
-	UTXOSet := UTXOSet{
+	us := UTXOSet{
 		NewUTXOSetFromTX(fromAliceToBobFirstTX)[0],
 		NewUTXOSetFromTX(fromAliceToBobSecondTX)[0],
 	}
@@ -110,7 +110,7 @@ func TestNew_TwoInputs(t *testing.T) {
 	bobToAliceAmount, err := amount.NewAmount(20.)
 	require.Nil(t, err)
 
-	newTX, err := New(UTXOSet, *bob.AddressPKH, *alice.AddressPKH, bobToAliceAmount)
+	newTX, err := New(us, *bob.AddressPKH, *alice.AddressPKH, bobToAliceAmount)
 	require.Nil(t, err)
 
 	require.Len(t, newTX.Inputs, 2)

@@ -1,6 +1,7 @@
 package templates
 
-const IndexTpl = `{{template "header"}}
+// IndexTPL represents a body of the main page
+const IndexTPL = `{{template "header"}}
 <div class="row col-12">
     <div class="mx-auto">
         <h4>Last 10 blocks</h4>

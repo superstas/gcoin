@@ -1,6 +1,7 @@
 package templates
 
-const HeaderTpl = `{{define "header"}}<!doctype html>
+// HeaderTPL represents a header part for all pages
+const HeaderTPL = `{{define "header"}}<!doctype html>
 <html lang="en">
 <head>
     <title>GopherCon Russia 2018 - GopherCoin block explorer</title>

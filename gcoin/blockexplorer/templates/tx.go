@@ -1,6 +1,7 @@
 package templates
 
-const TXTpl = `{{template "header"}}
+// TXTPL represents a body of the tx page
+const TXTPL = `{{template "header"}}
     <div class="row col-12">
         <div class="mx-auto">
 			{{ if .Confirmed }}
@@ -14,6 +15,7 @@ const TXTpl = `{{template "header"}}
     </div>
     <hr class="col-xs-12">
     <div class="row col-12">
+        <div class="mx-auto">
         <h4>Inputs</h4>
         <table class="table table-bordered">
             <thead>
@@ -53,9 +55,11 @@ const TXTpl = `{{template "header"}}
 	        {{ end }}
             </tbody>
         </table>
+    	</div>
     </div>
    <hr class="col-xs-12">
    <div class="row col-12">
+		<div class="mx-auto">
         <h4>Outputs</h4>
         <table class="table table-bordered">
             <thead>
@@ -73,9 +77,10 @@ const TXTpl = `{{template "header"}}
 			{{end}}
             </tbody>
         </table>
+    	</div>
     </div>
     <div class="row col-12">
-        <div>
+        <div class="mx-auto">
         <h5><a class="btn btn-info" data-toggle="collapse" href="#rawJSON" role="button">Show raw JSON</a></h5>
         <div class="collapse" id="rawJSON">
         <pre>{{ .RawJSON }}</pre>

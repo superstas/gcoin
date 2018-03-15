@@ -34,7 +34,10 @@ type Node struct {
 
 // Message starts listening a given server stream
 func (n *Node) Message(msgStream message.MessageService_MessageServer) error {
-	n.PeerManager.AddServer(msgStream)
+	if err := n.PeerManager.AddServer(msgStream); err != nil {
+		return err
+	}
+
 	for {
 		in, err := msgStream.Recv()
 		if err == io.EOF {
@@ -50,7 +53,11 @@ func (n *Node) Message(msgStream message.MessageService_MessageServer) error {
 
 // ServeClient starts listening a given client stream
 func (n *Node) ServeClient(stream message.MessageService_MessageClient) {
-	n.PeerManager.AddClient(stream)
+	if err := n.PeerManager.AddClient(stream); err != nil {
+		log.Printf("[network]: failed to add client: %v\n", err)
+		return
+	}
+
 	for {
 		in, err := stream.Recv()
 		if err == io.EOF {
@@ -139,11 +146,11 @@ func (n *Node) Send(ctx context.Context, r *cli.SendRequest) (*cli.SendResponse,
 		return nil, err
 	}
 
-	if err := n.Signer.Sign(&tx, from.PrivateKey); err != nil {
+	if err = n.Signer.Sign(&tx, from.PrivateKey); err != nil {
 		return nil, errors.Wrap(err, "failed to sign")
 	}
 
-	if err := n.Validator.ValidateTX(ctx, tx); err != nil {
+	if err = n.Validator.ValidateTX(ctx, tx); err != nil {
 		return nil, errors.Wrap(err, "failed to validate tx")
 	}
 
@@ -173,7 +180,7 @@ func (n *Node) GetBalance(ctx context.Context, in *cli.GetBalanceRequest) (*cli.
 	for _, k := range n.Wallet.Keys() {
 		total, err := n.Storage.TotalUTXOByPKH(ctx, *k.AddressPKH)
 		if err != nil {
-			errors.Wrapf(err, "failed to read total UTXO by %s", k.AddressPKH.EncodeAddress())
+			return nil, errors.Wrapf(err, "failed to read total UTXO by %s", k.AddressPKH.EncodeAddress())
 		}
 
 		r.Addresses = append(r.Addresses, &cli.Balance{

@@ -2,8 +2,11 @@ all: fmt imports generate test install
 
 travis_build: test install
 
-generate: 
-	go generate 
+generate: generate_test
+	go generate
+
+generate_test:
+	go generate -tags test
 
 install: 
 	go install ./cmd/gcoind/...

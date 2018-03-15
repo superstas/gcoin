@@ -39,11 +39,10 @@ func (m *PeerManager) AddClient(c message.MessageService_MessageClient) error {
 }
 
 // RemoveClient removes a client stream
-func (m *PeerManager) RemoveClient(addr string) error {
+func (m *PeerManager) RemoveClient(addr string) {
 	m.Lock()
 	delete(m.clientStreams, addr)
 	m.Unlock()
-	return nil
 }
 
 // AddServer adds a server stream
@@ -61,11 +60,10 @@ func (m *PeerManager) AddServer(s message.MessageService_MessageServer) error {
 }
 
 // RemoveServer removes a server stream
-func (m *PeerManager) RemoveServer(addr string) error {
+func (m *PeerManager) RemoveServer(addr string) {
 	m.Lock()
 	delete(m.serverStreams, addr)
 	m.Unlock()
-	return nil
 }
 
 // Send sends a given message to all known peers except a peer that sent this message to the node.

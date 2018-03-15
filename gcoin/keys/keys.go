@@ -46,7 +46,7 @@ func (k *Keys) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&key)
 }
 
-// UnmarshalJSON unmarshals keys
+// UnmarshalJSON does unmarshal keys
 func (k *Keys) UnmarshalJSON(d []byte) error {
 	var key struct {
 		PrivateKey []byte `json:"private_key"`
