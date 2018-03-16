@@ -15,8 +15,6 @@ This has been written as a part of the talk at the [GopherCon Russia 2018](https
 :heavy_check_mark: CLI tool  
 :heavy_check_mark: Wallet ( with keys and PKH address generation )
 
-## Demo
-
 
 ## Requirements
 Go 1.9 or newer  
@@ -111,8 +109,6 @@ GLOBAL OPTIONS:
    --help, -h         show help
    --version, -v      print the version
 ```
-## Run demo :arrow_forward:
-
 
 ## Limitations :disappointed:
 There are no following things:  
