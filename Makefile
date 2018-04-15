@@ -1,7 +1,5 @@
 all: fmt imports generate test install
 
-travis_build: test install
-
 generate: generate_test
 	go generate
 
