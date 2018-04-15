@@ -1,5 +1,5 @@
 # GCoin :heavy_dollar_sign:
-[![GoDoc](https://godoc.org/github.com/superstas/gcoin/gcoin?status.svg)](http://godoc.org/github.com/superstas/gcoin/gcoin) [![Build Status](https://travis-ci.org/superstas/gcoin.svg?branch=master)](https://travis-ci.org/superstas/gcoin)  
+ [![Build Status](https://travis-ci.org/superstas/gcoin.svg?branch=master)](https://travis-ci.org/superstas/gcoin) [![Coverage Status](https://coveralls.io/repos/github/superstas/gcoin/badge.svg?branch=master)](https://coveralls.io/github/superstas/gcoin?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/superstas/gcoin)](https://goreportcard.com/report/github.com/superstas/gcoin) [![GoDoc](https://godoc.org/github.com/superstas/gcoin/gcoin?status.svg)](http://godoc.org/github.com/superstas/gcoin/gcoin)  
 A very simple proof-of-concept implementation of a PoW cryptocurrency written in Go.  
 This has been written as a part of the talk at the [GopherCon Russia 2018](https://gophercon-russia.ru).  
 

@@ -1,9 +1,17 @@
 language: go
+sudo: false
+before_install:
+  - go get github.com/mattn/goveralls
+  - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
 
 go:
-  - 1.9
-  - tip
+  - "1.9"
+  - "1.10.x"
+  - "tip"
 
 script:
   - cd $TRAVIS_BUILD_DIR && make travis_build
-
+  - $GOPATH/bin/goveralls -service=travis-ci
+  - go test -c -covermode=count -coverpkg=github.com/superstas/gcoin
+  - ./gcoin.test -test.coverprofile coverage.cov
+  - $HOME/gopath/bin/goveralls -service=travis-ci -coverprofile=coverage.cov
